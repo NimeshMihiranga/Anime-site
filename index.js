@@ -9,7 +9,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'aniverse_secret_2024';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/aniverse';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongo:LTXKFwQdJlBKatbluwqKziRVJuOWQOEh@yamanote.proxy.rlwy.net:26057/aniverse';
 
 // ===== MIDDLEWARE =====
 app.use(cors());
