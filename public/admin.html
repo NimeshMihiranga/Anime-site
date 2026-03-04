@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AniVerse — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--bg:#0d0d0d;--bg2:#111111;--bg3:#181818;--card:#1c1c1c;--card2:#222222;--yellow:#f5c518;--yellow2:#e6b800;--orange:#ff8c00;--red:#e63946;--green:#2ec261;--txt:#ffffff;--txt2:#aaaaaa;--txt3:#555555;--border:#2a2a2a;--border2:rgba(245,197,24,0.25);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--yellow);}
+::-webkit-scrollbar-track{background:var(--bg3);}
+.apage{display:none;}
+.apage.active{display:block;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at center,rgba(245,197,24,.07) 0%,transparent 65%);}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--yellow);padding:44px 38px;width:100%;max-width:420px;}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo .lt{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:var(--yellow);letter-spacing:4px;}
+.login-logo .ls{color:var(--txt2);font-size:.72rem;letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;color:var(--txt2);font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:700;}
+.fg .iw{position:relative;}
+.fg .iw i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--txt3);}
+.fg input{width:100%;background:var(--bg3);border:1px solid var(--border);padding:12px 14px 12px 38px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.92rem;outline:none;transition:border .3s;border-radius:0;}
+.fg input:focus{border-color:var(--yellow);}
+.btn-login{width:100%;padding:14px;border:none;background:var(--yellow);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:6px;}
+.btn-login:hover{background:var(--yellow2);}
+.alert{padding:10px 14px;font-size:.84rem;margin-bottom:12px;display:none;font-weight:600;border-left:3px solid;}
+.alert-err{background:rgba(230,57,70,.1);border-color:var(--red);color:#ff8a8a;}
+.alert-ok{background:rgba(245,197,24,.1);border-color:var(--yellow);color:var(--yellow);}
+
+/* LAYOUT */
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:230px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto;}
+.sb-top{padding:18px;border-bottom:1px solid var(--border);}
+.sb-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--yellow);letter-spacing:3px;}
+.sb-sub{color:var(--txt3);font-size:.68rem;letter-spacing:2px;text-transform:uppercase;}
+.sb-nav{flex:1;padding:8px 0;}
+.sbi{display:flex;align-items:center;gap:11px;padding:12px 18px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt2);border-left:3px solid transparent;transition:all .25s;}
+.sbi:hover{background:rgba(245,197,24,.06);color:var(--txt);}
+.sbi.active{color:var(--yellow);border-left-color:var(--yellow);background:rgba(245,197,24,.06);}
+.sbi i{width:16px;font-size:.85rem;}
+.sbi.danger{color:#ff6b6b;}
+.sbi.danger:hover{background:rgba(230,57,70,.06);}
+.sb-sep{height:1px;background:var(--border);margin:6px 0;}
+.main{margin-left:230px;flex:1;display:flex;flex-direction:column;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.topbar h1{font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;}
+.topbar h1 span{color:var(--yellow);}
+.top-user{color:var(--txt2);font-size:.85rem;display:flex;align-items:center;gap:8px;}
+.top-user strong{color:var(--yellow);}
+.content{padding:24px;flex:1;}
+.mob-sb-btn{display:none;background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer;margin-right:10px;}
+
+/* SECTIONS */
+.sec{display:none;}
+.sec.active{display:block;}
+
+/* STAT CARDS */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr);}}
+.scard{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--yellow);padding:20px;text-align:center;}
+.sc-n{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--yellow);line-height:1;}
+.sc-l{color:var(--txt2);font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;font-weight:600;}
+.sc-icon{font-size:1.4rem;margin-bottom:8px;opacity:.6;}
+
+/* TABLE */
+.tbox{background:var(--card);border:1px solid var(--border);margin-bottom:20px;overflow:hidden;}
+.tbox-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
+.tbox-hdr h3{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;}
+.tbox-hdr h3 span{color:var(--yellow);}
+.t-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{padding:11px 14px;text-align:left;color:var(--txt3);font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;border-bottom:1px solid var(--border);font-weight:700;white-space:nowrap;}
+td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.88rem;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.badge{display:inline-block;padding:3px 9px;font-size:.65rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;}
+.badge-member{background:rgba(170,170,170,.12);color:var(--txt2);}
+.badge-admin{background:var(--yellow);color:#000;}
+.badge-series{background:rgba(245,197,24,.12);color:var(--yellow);}
+.badge-movie{background:var(--orange);color:#fff;}
+
+/* BUTTONS */
+.btn{border:none;padding:7px 13px;font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:5px;}
+.btn-y{background:var(--yellow);color:#000;}
+.btn-y:hover{background:var(--yellow2);}
+.btn-r{background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.3);color:var(--red);}
+.btn-r:hover{background:rgba(230,57,70,.25);}
+.btn-b{background:rgba(0,170,255,.12);border:1px solid rgba(0,170,255,.25);color:#44aaff;}
+.btn-b:hover{background:rgba(0,170,255,.22);}
+.btn-g{background:rgba(46,194,97,.12);border:1px solid rgba(46,194,97,.25);color:var(--green);}
+.btn-g:hover{background:rgba(46,194,97,.22);}
+
+/* UPLOAD FORM */
+.uform{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--yellow);padding:24px;margin-bottom:20px;}
+.uform-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.uform-title i{color:var(--yellow);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:640px){.frow{grid-template-columns:1fr;}}
+.ff{margin-bottom:0;}
+.ff label{display:block;color:var(--txt2);font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px;font-weight:700;}
+.ff input,.ff textarea,.ff select{width:100%;background:var(--bg3);border:1px solid var(--border);padding:10px 12px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;transition:border .3s;border-radius:0;}
+.ff input:focus,.ff textarea:focus,.ff select:focus{border-color:var(--yellow);}
+.ff textarea{resize:none;min-height:65px;}
+.ff select option{background:var(--bg3);}
+.ff-full{margin-bottom:12px;}
+.ff-full label{display:block;color:var(--txt2);font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px;font-weight:700;}
+.ff-full input,.ff-full textarea{width:100%;background:var(--bg3);border:1px solid var(--border);padding:10px 12px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;transition:border .3s;border-radius:0;}
+.ff-full input:focus,.ff-full textarea:focus{border-color:var(--yellow);}
+.ff-full textarea{resize:none;min-height:65px;}
+.img-prevs{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.img-p{height:100px;border:1px solid var(--border);object-fit:cover;display:none;}
+
+/* SEASONS BUILDER */
+.seasons-wrap{background:var(--bg3);border:1px solid var(--border);padding:14px;margin-top:14px;}
+.seas-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.seas-hdr label{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);}
+.season-blk{background:var(--card2);border:1px solid var(--border);border-left:2px solid var(--yellow);padding:14px;margin-bottom:10px;}
+.sblk-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.sblk-name input{background:transparent;border:none;border-bottom:1px solid var(--border);padding:4px 0;color:var(--yellow);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:1px;outline:none;width:140px;}
+.sblk-name input:focus{border-bottom-color:var(--yellow);}
+.ep-blks{display:flex;flex-direction:column;gap:7px;}
+.ep-blk{background:var(--bg3);border:1px solid var(--border);padding:12px;}
+.ep-blk-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ep-blk-hdr span{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt2);}
+.ep-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:550px){.ep-fields{grid-template-columns:1fr;}}
+.ef label{display:block;color:var(--txt3);font-size:.68rem;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-weight:700;}
+.ef input,.ef textarea{width:100%;background:var(--bg2);border:1px solid var(--border);padding:8px 10px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.84rem;outline:none;transition:border .3s;border-radius:0;}
+.ef input:focus,.ef textarea:focus{border-color:var(--yellow);}
+.ef textarea{min-height:50px;resize:none;}
+.ef.full{grid-column:1/-1;}
+
+/* REQUEST/COMMENT CARDS */
+.rcard{background:var(--card);border:1px solid var(--border);border-left:2px solid var(--yellow);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.rcard-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;}
+.rcard-meta{color:var(--txt3);font-size:.76rem;margin-top:2px;}
+.rcard-note{color:var(--txt2);font-size:.83rem;margin-top:5px;}
+.ccard{background:var(--card);border:1px solid var(--border);padding:13px 15px;margin-bottom:7px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.cc-info .cc-user{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;}
+.cc-info .cc-on{color:var(--txt3);font-size:.76rem;}
+.cc-info .cc-txt{color:var(--txt2);font-size:.85rem;margin-top:5px;line-height:1.4;}
+.cc-info .cc-stars{color:var(--yellow);font-size:.76rem;margin-top:3px;}
+.empty-c{text-align:center;padding:30px;color:var(--txt3);font-family:'Barlow Condensed',sans-serif;font-size:.9rem;letter-spacing:1.5px;text-transform:uppercase;}
+.loading-c{text-align:center;padding:36px;color:var(--txt2);}
+
+/* MOBILE */
+@media(max-width:768px){
+  .sidebar{width:0;overflow:hidden;}
+  .sidebar.open{width:220px;}
+  .main{margin-left:0;}
+  .mob-sb-btn{display:block;}
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+}
+.mob-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;}
+.mob-ov.show{display:block;}
+</style>
+</head>
+<body>
+
+<!-- ADMIN LOGIN -->
+<div class="apage active" id="adminLogin">
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-logo">
+        <div class="lt">⚡ AniVerse</div>
+        <div class="ls">Admin Control Panel</div>
+      </div>
+      <div class="alert alert-err" id="aErr"></div>
+      <div class="fg"><label>Email or Phone</label><div class="iw"><i class="fas fa-user"></i><input type="text" id="al_id" placeholder="Admin email or phone"></div></div>
+      <div class="fg"><label>Password</label><div class="iw"><i class="fas fa-lock"></i><input type="password" id="al_pass" placeholder="Admin password" onkeydown="if(event.key==='Enter')adminLogin()"></div></div>
+      <button class="btn-login" onclick="adminLogin()"><i class="fas fa-shield-alt"></i> &nbsp;Admin Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="apage" id="adminDash">
+  <div class="mob-ov" id="mobOv" onclick="closeSB()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">⚡ AniVerse</div>
+      <div class="sb-sub">Admin Panel</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sbi active" onclick="showSec('sDash')"><i class="fas fa-chart-bar"></i> Dashboard</div>
+      <div class="sbi" onclick="showSec('sUpload')"><i class="fas fa-upload"></i> Upload Anime</div>
+      <div class="sbi" onclick="showSec('sAnime')"><i class="fas fa-film"></i> Manage Anime</div>
+      <div class="sbi" onclick="showSec('sUsers')"><i class="fas fa-users"></i> Users</div>
+      <div class="sbi" onclick="showSec('sRequests')"><i class="fas fa-inbox"></i> Requests</div>
+      <div class="sbi" onclick="showSec('sComments')"><i class="fas fa-comments"></i> Comments</div>
+      <div class="sb-sep"></div>
+      <div class="sbi" onclick="window.location.href='index.html'"><i class="fas fa-home"></i> View Site</div>
+      <div class="sbi danger" onclick="adminLogout()"><i class="fas fa-power-off"></i> Logout</div>
+    </nav>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:0">
+        <button class="mob-sb-btn" onclick="toggleSB()"><i class="fas fa-bars"></i></button>
+        <h1 id="secLabel">DASH<span>BOARD</span></h1>
+      </div>
+      <div class="top-user">Logged as <strong id="adminName">Admin</strong></div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="sec active" id="sDash">
+        <div class="stat-row" id="dashStats"></div>
+        <div class="tbox">
+          <div class="tbox-hdr"><h3>Recent <span>Uploads</span></h3></div>
+          <div class="t-wrap" id="recentUploads"><div class="loading-c"><i class="fas fa-spinner fa-spin"></i></div></div>
+        </div>
+      </div>
+
+      <!-- UPLOAD -->
+      <div class="sec" id="sUpload">
+        <div class="uform">
+          <div class="uform-title"><i class="fas fa-cloud-upload-alt"></i> Upload New Anime</div>
+          <div class="alert alert-err" id="upErr"></div>
+          <div class="alert alert-ok" id="upOk"></div>
+          <div class="frow">
+            <div class="ff"><label>Anime Name *</label><input type="text" id="up_name" placeholder="e.g. Attack on Titan"></div>
+            <div class="ff"><label>Category *</label>
+              <select id="up_cat">
+                <option>Action</option><option>Romance</option><option>Fantasy</option>
+                <option>Sci-Fi</option><option>Horror</option><option>Comedy</option>
+                <option>Drama</option><option>Adventure</option><option>Mystery</option>
+              </select>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="ff"><label>Type *</label>
+              <select id="up_type" onchange="toggleMovieMode()">
+                <option value="Series">Series</option>
+                <option value="Movie">Movie</option>
+              </select>
+            </div>
+            <div class="ff"><label>Uploader Name</label><input type="text" id="up_uploader" placeholder="Your name"></div>
+          </div>
+          <div class="ff-full"><label>Description *</label><textarea id="up_desc" placeholder="Anime description..."></textarea></div>
+          <div class="frow">
+            <div class="ff"><label>Cover Image URL</label><input type="url" id="up_cover" placeholder="https://..." oninput="prevImg('up_cover','pCover')"></div>
+            <div class="ff"><label>Banner Image URL</label><input type="url" id="up_banner" placeholder="https://..." oninput="prevImg('up_banner','pBanner')"></div>
+          </div>
+          <div class="img-prevs">
+            <img id="pCover" class="img-p" style="width:70px" alt="Cover">
+            <img id="pBanner" class="img-p" style="width:160px" alt="Banner">
+          </div>
+
+          <!-- SEASONS/EPISODES -->
+          <div id="seasonsArea" style="margin-top:16px">
+            <div class="seasons-wrap">
+              <div class="seas-hdr">
+                <label><i class="fas fa-layer-group"></i> Seasons &amp; Episodes</label>
+                <button class="btn btn-y" onclick="addSeason()"><i class="fas fa-plus"></i> Add Season</button>
+              </div>
+              <div id="seasonsContainer"></div>
+            </div>
+          </div>
+
+          <!-- MOVIE FIELDS -->
+          <div id="movieArea" style="display:none;margin-top:16px">
+            <div class="seasons-wrap">
+              <div class="seas-hdr"><label><i class="fas fa-film"></i> Movie Details</label></div>
+              <div class="frow">
+                <div class="ff"><label>Video URL (YouTube/Direct)</label><input type="url" id="mv_video" placeholder="https://youtube.com/watch?v=..."></div>
+                <div class="ff"><label>Download Link</label><input type="url" id="mv_dl" placeholder="https://drive.google.com/..."></div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-y" style="width:100%;justify-content:center;padding:14px;font-size:1rem;margin-top:18px" onclick="submitUpload()">
+            <i class="fas fa-cloud-upload-alt"></i> &nbsp;Upload Anime
+          </button>
+        </div>
+      </div>
+
+      <!-- MANAGE ANIME -->
+      <div class="sec" id="sAnime">
+        <div class="tbox">
+          <div class="tbox-hdr">
+            <h3>All <span>Anime</span></h3>
+            <button class="btn btn-b" onclick="loadAdminAnime()"><i class="fas fa-sync"></i> Refresh</button>
+          </div>
+          <div class="t-wrap" id="animeTable"><div class="loading-c"><i class="fas fa-spinner fa-spin"></i></div></div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="sec" id="sUsers">
+        <div class="tbox">
+          <div class="tbox-hdr">
+            <h3>Registered <span>Users</span></h3>
+            <button class="btn btn-b" onclick="loadUsers()"><i class="fas fa-sync"></i> Refresh</button>
+          </div>
+          <div class="t-wrap" id="usersTable"><div class="loading-c"><i class="fas fa-spinner fa-spin"></i></div></div>
+        </div>
+      </div>
+
+      <!-- REQUESTS -->
+      <div class="sec" id="sRequests">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn btn-b" onclick="loadRequests()"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+        <div id="reqsContent"><div class="loading-c"><i class="fas fa-spinner fa-spin"></i></div></div>
+      </div>
+
+      <!-- COMMENTS -->
+      <div class="sec" id="sComments">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn btn-b" onclick="loadAllCmts()"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+        <div id="cmtsContent"><div class="loading-c"><i class="fas fa-spinner fa-spin"></i></div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toastCont" style="position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px;align-items:flex-end;"></div>
+
+<script src="admin.js"></script>
+</body>
+</html>

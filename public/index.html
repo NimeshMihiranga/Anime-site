@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AniVerse - Anime Films & Series</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg:#111111;
+  --bg2:#1a1a1a;
+  --bg3:#222222;
+  --card:#1e1e1e;
+  --card2:#282828;
+  --yellow:#f5c518;
+  --yellow2:#e6b800;
+  --orange:#ff8c00;
+  --red:#e63946;
+  --txt:#ffffff;
+  --txt2:#aaaaaa;
+  --txt3:#666666;
+  --border:#333333;
+  --border2:rgba(245,197,24,0.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--yellow);border-radius:2px;}
+
+/* ====== PAGES ====== */
+.page{display:none;min-height:100vh;}
+.page.active{display:block;}
+
+/* ====== LOADING ====== */
+.loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+.loader-logo{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:var(--yellow);letter-spacing:6px;animation:flicker 1.5s ease-in-out infinite;}
+@keyframes flicker{0%,100%{opacity:1;text-shadow:0 0 20px rgba(245,197,24,.8);}50%{opacity:.7;text-shadow:none;}}
+.loader-bar{width:200px;height:3px;background:var(--bg3);}
+.loader-fill{height:100%;background:var(--yellow);animation:loadfill 1.4s ease-in-out infinite;}
+@keyframes loadfill{0%{width:0;margin-left:0;}60%{width:80%;}100%{width:0;margin-left:100%;}}
+
+/* ====== AUTH ====== */
+.auth-page{min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;}
+.auth-page::before{content:'';position:absolute;inset:0;background:url('https://i.pinimg.com/originals/f9/e5/73/f9e573b68dc23f7b0e62e19779b3cb39.jpg') center/cover;opacity:.08;}
+.auth-box{position:relative;z-index:1;background:rgba(17,17,17,.96);border:1px solid var(--border);border-top:3px solid var(--yellow);padding:44px 38px;width:100%;max-width:440px;animation:slideUp .4s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.auth-logo{text-align:center;margin-bottom:28px;}
+.auth-logo .al{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--yellow);letter-spacing:4px;}
+.auth-logo .als{color:var(--txt2);font-size:.78rem;letter-spacing:3px;text-transform:uppercase;}
+.auth-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:28px;}
+.atab{flex:1;padding:12px;background:none;border:none;color:var(--txt2);font-family:'Barlow',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .3s;position:relative;}
+.atab.active{color:var(--yellow);}
+.atab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--yellow);}
+.fg{margin-bottom:16px;}
+.fg label{display:block;color:var(--txt2);font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px;font-weight:600;}
+.fg .iw{position:relative;}
+.fg .iw i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:.9rem;}
+.fg input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:0;padding:13px 14px 13px 40px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;transition:all .3s;}
+.fg input:focus{border-color:var(--yellow);background:var(--bg2);}
+.btn-auth{width:100%;padding:14px;border:none;background:var(--yellow);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:8px;}
+.btn-auth:hover{background:var(--yellow2);transform:translateY(-1px);}
+.auth-alt{text-align:center;margin-top:16px;color:var(--txt2);font-size:.88rem;}
+.auth-alt a{color:var(--yellow);cursor:pointer;font-weight:600;}
+.alert{padding:10px 14px;font-size:.85rem;margin-bottom:14px;display:none;font-weight:600;}
+.alert-err{background:rgba(230,57,70,.12);border-left:3px solid var(--red);color:#ff8a8a;}
+.alert-ok{background:rgba(245,197,24,.12);border-left:3px solid var(--yellow);color:var(--yellow);}
+
+/* ====== NAVBAR ====== */
+.navbar{background:#0d0d0d;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1000;height:56px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:0;height:100%;padding:0 20px;}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--yellow);letter-spacing:3px;cursor:pointer;flex-shrink:0;margin-right:32px;transition:opacity .2s;}
+.nav-logo:hover{opacity:.85;}
+.nav-links{display:flex;align-items:center;height:100%;gap:0;flex-shrink:0;}
+.nav-link{padding:0 14px;height:100%;display:flex;align-items:center;color:var(--txt2);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;cursor:pointer;transition:all .3s;position:relative;border-bottom:3px solid transparent;}
+.nav-link:hover,.nav-link.active{color:var(--yellow);border-bottom-color:var(--yellow);}
+.nav-search{flex:1;max-width:320px;margin:0 20px;position:relative;}
+.nav-search input{width:100%;background:var(--bg3);border:1px solid var(--border);padding:8px 14px 8px 36px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;transition:all .3s;border-radius:0;}
+.nav-search input:focus{border-color:var(--yellow);}
+.nav-search i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:.85rem;}
+.sdrop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#1a1a1a;border:1px solid var(--border);border-top:2px solid var(--yellow);display:none;z-index:999;max-height:340px;overflow-y:auto;}
+.sdrop.show{display:block;}
+.sitem{display:flex;align-items:center;gap:11px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .2s;}
+.sitem:hover{background:var(--bg3);}
+.sitem img{width:36px;height:50px;object-fit:cover;flex-shrink:0;}
+.sitem-n{font-weight:700;font-size:.85rem;}
+.sitem-c{color:var(--txt3);font-size:.75rem;margin-top:2px;}
+.nav-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex-shrink:0;}
+.btn-donate{background:var(--yellow);color:#000;border:none;padding:7px 16px;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:6px;}
+.btn-donate:hover{background:var(--yellow2);}
+.btn-req{background:transparent;color:var(--yellow);border:1px solid var(--yellow);padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:6px;}
+.btn-req:hover{background:rgba(245,197,24,.1);}
+.nav-prof{position:relative;}
+.prof-ico{width:34px;height:34px;background:var(--yellow);color:#000;display:flex;align-items:center;justify-content:center;font-size:.95rem;cursor:pointer;font-weight:800;position:relative;transition:all .3s;}
+.prof-ico:hover{background:var(--yellow2);}
+.crown-badge{position:absolute;top:-5px;right:-5px;background:#ff6600;border-radius:50%;width:14px;height:14px;display:none;align-items:center;justify-content:center;font-size:.5rem;color:#fff;}
+.pmenu{position:absolute;top:calc(100% + 8px);right:0;background:#1a1a1a;border:1px solid var(--border);border-top:2px solid var(--yellow);min-width:220px;display:none;z-index:999;animation:slideUp .2s ease;}
+.pmenu.show{display:block;}
+.pm-head{padding:16px;border-bottom:1px solid var(--border);background:rgba(245,197,24,.06);}
+.pm-name{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1px;}
+.pm-email{color:var(--txt3);font-size:.78rem;margin-top:2px;word-break:break-all;}
+.pm-role{display:inline-block;background:var(--yellow);color:#000;font-size:.65rem;font-weight:800;letter-spacing:1px;padding:2px 8px;margin-top:5px;text-transform:uppercase;}
+.pm-role.ar{background:#ff6600;color:#fff;}
+.pmi{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--txt2);border-bottom:1px solid rgba(255,255,255,.04);transition:all .2s;text-transform:uppercase;letter-spacing:.5px;}
+.pmi:hover{background:var(--bg3);color:var(--yellow);}
+.pmi i{width:16px;font-size:.85rem;}
+.pmi.lo{color:#ff6b6b;}
+.pmi.lo:hover{color:#ff4757;}
+.mob-menu{display:none;background:none;border:none;color:var(--txt);font-size:1.3rem;cursor:pointer;padding:0 8px;}
+
+/* ====== HERO ====== */
+.hero{position:relative;height:520px;overflow:hidden;background:#000;}
+.hero-slides{display:flex;height:100%;transition:transform .7s cubic-bezier(.4,0,.2,1);}
+.hero-slide{min-width:100%;height:100%;position:relative;display:flex;align-items:flex-end;}
+.hbg{position:absolute;inset:0;background-size:cover;background-position:center top;transition:transform 8s ease;}
+.hero-slide:hover .hbg{transform:scale(1.04);}
+.hov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.7) 40%,rgba(0,0,0,.15) 100%);}
+.hov2{position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to top,var(--bg) 0%,transparent 100%);}
+.hcontent{position:relative;z-index:1;padding:0 60px 50px;max-width:620px;}
+.h-tags{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.htag{background:var(--yellow);color:#000;font-size:.65rem;font-weight:800;padding:3px 10px;letter-spacing:1.5px;text-transform:uppercase;}
+.htag.sub{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;}
+.h-title{font-family:'Bebas Neue',sans-serif;font-size:5rem;line-height:.95;color:#fff;margin-bottom:14px;letter-spacing:2px;text-shadow:0 4px 20px rgba(0,0,0,.5);}
+.h-desc{color:rgba(255,255,255,.75);font-size:.92rem;line-height:1.6;margin-bottom:22px;max-width:480px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.h-btns{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-hwatch{background:var(--yellow);color:#000;border:none;padding:13px 30px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:8px;}
+.btn-hwatch:hover{background:var(--yellow2);transform:translateY(-2px);}
+.btn-hinfo{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5);padding:13px 24px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.btn-hinfo:hover{border-color:#fff;background:rgba(255,255,255,.1);}
+.hero-side{position:absolute;right:0;top:0;bottom:0;width:42%;pointer-events:none;}
+.hero-side img{width:100%;height:100%;object-fit:cover;object-position:top center;opacity:.35;mask-image:linear-gradient(to left,rgba(0,0,0,.5) 0%,transparent 100%);}
+.hnav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:all .3s;font-size:1rem;}
+.hnav-btn:hover{background:var(--yellow);color:#000;border-color:var(--yellow);}
+.hero-indicators{position:absolute;bottom:20px;right:60px;display:flex;gap:8px;z-index:2;}
+.hind{width:30px;height:3px;background:rgba(255,255,255,.3);cursor:pointer;transition:all .3s;}
+.hind.active{background:var(--yellow);width:50px;}
+
+/* ====== MAIN CONTENT ====== */
+.main-wrap{max-width:1400px;margin:0 auto;padding:32px 20px;}
+
+/* ====== SECTION ====== */
+.sec{margin-bottom:40px;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#fff;}
+.sec-title span{color:var(--yellow);}
+.sec-more{color:var(--yellow);font-size:.8rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:5px;transition:opacity .2s;}
+.sec-more:hover{opacity:.75;}
+
+/* ====== HORIZONTAL SCROLL SECTION ====== */
+.hscroll-wrap{position:relative;}
+.hscroll{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scroll-behavior:smooth;}
+.hscroll::-webkit-scrollbar{height:3px;}
+.hscroll::-webkit-scrollbar-thumb{background:var(--yellow);}
+.hscroll-btn{position:absolute;top:50%;transform:translateY(-60%);background:var(--yellow);color:#000;border:none;width:34px;height:80px;font-size:1rem;cursor:pointer;z-index:2;transition:all .3s;display:flex;align-items:center;justify-content:center;}
+.hscroll-btn:hover{background:var(--yellow2);}
+.hscroll-btn.prev{left:-17px;}
+.hscroll-btn.next{right:-17px;}
+
+/* ====== ANIME CARD (poster style) ====== */
+.acard{flex-shrink:0;width:170px;cursor:pointer;position:relative;transition:transform .3s;}
+.acard:hover{transform:translateY(-5px);}
+.acard-img-w{position:relative;overflow:hidden;}
+.acard-img{width:100%;height:240px;object-fit:cover;display:block;background:var(--bg3);}
+.acard-yr{position:absolute;top:6px;left:6px;background:var(--yellow);color:#000;font-size:.65rem;font-weight:800;padding:2px 7px;letter-spacing:.5px;}
+.acard-type{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.8);color:#fff;font-size:.62rem;font-weight:700;padding:2px 7px;letter-spacing:.5px;text-transform:uppercase;border:1px solid rgba(255,255,255,.2);}
+.acard-type.movie{background:var(--orange);border-color:var(--orange);}
+.acard-ov{position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity .3s;}
+.acard:hover .acard-ov{opacity:1;}
+.acard-play{width:46px;height:46px;border-radius:50%;background:var(--yellow);color:#000;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.acard-eps{color:rgba(255,255,255,.7);font-size:.78rem;font-weight:600;letter-spacing:.5px;}
+.acard-info{padding:8px 0;}
+.acard-title{font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#ddd;}
+.acard-meta{color:var(--txt3);font-size:.72rem;margin-top:4px;display:flex;align-items:center;gap:6px;}
+.acard-rating{color:var(--yellow);font-size:.72rem;}
+
+/* ====== LIST SECTION (Nowości style) ====== */
+.list-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:900px){.list-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.list-grid{grid-template-columns:1fr;}}
+.lcard{display:flex;gap:12px;cursor:pointer;padding:10px;background:var(--card);border:1px solid var(--border);transition:all .3s;}
+.lcard:hover{border-color:var(--yellow);background:var(--card2);}
+.lcard-img{width:68px;height:90px;object-fit:cover;flex-shrink:0;background:var(--bg3);}
+.lcard-info{flex:1;min-width:0;padding:4px 0;}
+.lcard-title{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;line-height:1.2;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.lcard-desc{color:var(--txt2);font-size:.78rem;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px;}
+.lcard-watch{color:var(--yellow);font-size:.72rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:5px;}
+
+/* ====== ANIME DETAIL PAGE ====== */
+.anime-hero{position:relative;height:460px;overflow:hidden;}
+.ah-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(3px);transform:scale(1.05);opacity:.35;}
+.ah-ov{position:absolute;inset:0;background:linear-gradient(90deg,var(--bg) 0%,rgba(17,17,17,.85) 50%,rgba(17,17,17,.3) 100%);}
+.ah-ov2{position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to top,var(--bg) 0%,transparent 100%);}
+.ah-cnt{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 20px;height:100%;display:flex;align-items:flex-end;padding-bottom:40px;gap:28px;}
+.ah-poster{width:180px;flex-shrink:0;border:3px solid var(--yellow);box-shadow:0 0 40px rgba(245,197,24,.25);}
+.ah-poster img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;}
+.ah-info{flex:1;}
+.ah-cats{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.ah-cat{background:var(--yellow);color:#000;font-size:.65rem;font-weight:800;padding:3px 10px;letter-spacing:1.5px;text-transform:uppercase;}
+.ah-cat.outline{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;}
+.ah-title{font-family:'Bebas Neue',sans-serif;font-size:4rem;line-height:1;color:#fff;letter-spacing:2px;margin-bottom:10px;}
+.ah-meta{display:flex;gap:16px;flex-wrap:wrap;color:var(--txt2);font-size:.85rem;margin-bottom:12px;}
+.ah-meta span{display:flex;align-items:center;gap:5px;}
+.ah-meta .rating{color:var(--yellow);font-weight:700;}
+.ah-desc{color:rgba(255,255,255,.7);font-size:.9rem;line-height:1.6;max-width:550px;margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.ah-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-watch-now{background:var(--yellow);color:#000;border:none;padding:12px 28px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .3s;}
+.btn-watch-now:hover{background:var(--yellow2);}
+.btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.4);padding:12px 22px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.btn-outline:hover{border-color:#fff;}
+
+/* ====== EPISODE SECTION ====== */
+.ep-section{max-width:1400px;margin:0 auto;padding:28px 20px;}
+.season-bar{display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.season-bar::-webkit-scrollbar{display:none;}
+.stab{background:transparent;border:1px solid var(--border);padding:8px 20px;color:var(--txt2);font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;white-space:nowrap;}
+.stab.active{background:var(--yellow);color:#000;border-color:var(--yellow);}
+.stab:hover:not(.active){border-color:var(--yellow);color:var(--yellow);}
+.ep-grid{display:flex;flex-direction:column;gap:6px;max-height:520px;overflow-y:auto;padding-right:4px;}
+.ep-grid::-webkit-scrollbar{width:3px;}
+.ep-grid::-webkit-scrollbar-thumb{background:var(--yellow);}
+.ep-item{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);padding:13px 16px;cursor:pointer;transition:all .25s;border-left:3px solid transparent;}
+.ep-item:hover{background:var(--card2);border-left-color:var(--yellow);}
+.ep-item.active{border-left-color:var(--yellow);background:rgba(245,197,24,.06);}
+.ep-num{min-width:44px;height:44px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;color:var(--txt2);flex-shrink:0;letter-spacing:1px;}
+.ep-item.active .ep-num,.ep-item:hover .ep-num{background:var(--yellow);color:#000;border-color:var(--yellow);}
+.ep-inf{flex:1;min-width:0;}
+.ep-n{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ep-d{color:var(--txt2);font-size:.78rem;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4;}
+.btn-epdl{background:transparent;border:1px solid var(--yellow);color:var(--yellow);padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;flex-shrink:0;display:flex;align-items:center;gap:5px;}
+.btn-epdl:hover{background:var(--yellow);color:#000;}
+
+/* ====== PLAYER ====== */
+.player-wrap{max-width:1200px;margin:0 auto;padding:20px;}
+.video-box{width:100%;background:#000;margin-bottom:16px;border:2px solid var(--border);}
+.video-box iframe,.video-box video{width:100%;aspect-ratio:16/9;border:none;display:block;}
+.player-info{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--yellow);padding:14px 18px;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+.pi-title{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;}
+.pi-sub{color:var(--txt2);font-size:.82rem;margin-top:2px;}
+.pi-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn-dl-main{background:var(--yellow);color:#000;border:none;padding:10px 22px;font-family:'Barlow Condensed',sans-serif;font-size:.88rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .3s;}
+.btn-dl-main:hover{background:var(--yellow2);}
+.btn-epnav{background:transparent;border:1px solid var(--border);color:var(--txt2);padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:6px;}
+.btn-epnav:hover{border-color:var(--yellow);color:var(--yellow);}
+
+/* ====== COMMENTS ====== */
+.cmts{margin-top:24px;max-width:1200px;}
+.cmts-title{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.cmts-title span{color:var(--yellow);}
+.cmt-form{background:var(--card);border:1px solid var(--border);padding:18px;margin-bottom:18px;}
+.cmt-inp{width:100%;background:var(--bg3);border:1px solid var(--border);padding:12px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.9rem;resize:none;outline:none;min-height:70px;transition:border .3s;}
+.cmt-inp:focus{border-color:var(--yellow);}
+.cmt-form-bot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:8px;}
+.stars{display:flex;gap:4px;}
+.stars i{font-size:1.2rem;color:var(--txt3);cursor:pointer;transition:color .15s;}
+.stars i.on{color:var(--yellow);}
+.btn-postcmt{background:var(--yellow);color:#000;border:none;padding:9px 22px;font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.btn-postcmt:hover{background:var(--yellow2);}
+.cmt-list{display:flex;flex-direction:column;gap:10px;}
+.cmt-card{background:var(--card);border:1px solid var(--border);padding:15px 16px;border-left:3px solid transparent;}
+.cmt-card.admin-cmt{border-left-color:var(--yellow);background:rgba(245,197,24,.04);}
+.cmt-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.cmt-av{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex-shrink:0;}
+.cmt-av.adm{background:var(--yellow);color:#000;border-color:var(--yellow);}
+.cmt-user{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.cmt-albl{background:var(--yellow);color:#000;font-size:.6rem;font-weight:800;padding:1px 7px;letter-spacing:1px;text-transform:uppercase;}
+.cmt-stars-s{color:var(--yellow);font-size:.75rem;margin-left:4px;}
+.cmt-time{color:var(--txt3);font-size:.75rem;margin-left:auto;}
+.cmt-txt{color:#cccccc;font-size:.88rem;line-height:1.55;}
+.cmt-ftr{display:flex;gap:14px;margin-top:10px;}
+.cbt{background:none;border:none;color:var(--txt3);font-family:'Barlow',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;text-transform:uppercase;letter-spacing:.5px;transition:color .2s;}
+.cbt:hover{color:var(--yellow);}
+.cbt.del:hover{color:var(--red);}
+.reply-form{margin-top:10px;display:none;}
+.reply-form.show{display:block;}
+.reply-inp{width:100%;background:var(--bg3);border:1px solid var(--border);padding:9px 12px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.85rem;outline:none;transition:border .3s;}
+.reply-inp:focus{border-color:var(--yellow);}
+.reply-sub{background:var(--yellow);color:#000;border:none;padding:6px 16px;font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;margin-top:7px;}
+.replies{margin-top:10px;padding-left:14px;border-left:2px solid var(--border);display:flex;flex-direction:column;gap:8px;}
+
+/* ====== MODALS ====== */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--yellow);padding:32px;width:100%;max-width:460px;animation:slideUp .3s ease;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.modal-title i{color:var(--yellow);margin-right:8px;}
+.modal-sub{color:var(--txt2);font-size:.85rem;margin-bottom:22px;}
+.mfg{margin-bottom:14px;}
+.mfg label{display:block;color:var(--txt2);font-size:.75rem;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;font-weight:600;}
+.mfg input,.mfg textarea,.mfg select{width:100%;background:var(--bg3);border:1px solid var(--border);padding:11px 13px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;transition:border .3s;border-radius:0;}
+.mfg input:focus,.mfg textarea:focus,.mfg select:focus{border-color:var(--yellow);}
+.mfg textarea{resize:none;min-height:70px;}
+.mfg select option{background:var(--bg3);}
+.mfoot{display:flex;gap:10px;margin-top:20px;}
+.btn-mcancel{flex:1;background:transparent;border:1px solid var(--border);padding:12px;color:var(--txt2);font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;}
+.btn-msub{flex:2;background:var(--yellow);color:#000;border:none;padding:12px;font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.btn-msub:hover{background:var(--yellow2);}
+
+/* ====== BACK BTN ====== */
+.back-btn{display:inline-flex;align-items:center;gap:8px;color:var(--txt2);cursor:pointer;font-size:.82rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:16px 20px;transition:color .2s;}
+.back-btn:hover{color:var(--yellow);}
+.back-btn i{font-size:.8rem;}
+
+/* ====== TOAST ====== */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--yellow);padding:12px 18px;font-weight:700;font-size:.88rem;z-index:9999;display:flex;align-items:center;gap:10px;animation:slideUp .3s ease;text-transform:uppercase;letter-spacing:.5px;}
+.toast.err{border-left-color:var(--red);}
+.toast i{font-size:.9rem;}
+.toast i.ok-i{color:var(--yellow);}
+.toast i.err-i{color:var(--red);}
+
+/* ====== CAT FILTER BAR ====== */
+.cat-bar{display:flex;gap:6px;margin-bottom:22px;overflow-x:auto;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.cat-bar::-webkit-scrollbar{height:2px;}
+.cat-bar::-webkit-scrollbar-thumb{background:var(--yellow);}
+.cfilt{background:transparent;border:1px solid var(--border);padding:7px 16px;color:var(--txt2);font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;white-space:nowrap;}
+.cfilt:hover,.cfilt.active{background:var(--yellow);color:#000;border-color:var(--yellow);}
+
+/* ====== STATS ====== */
+.stats-row{display:flex;gap:0;margin-bottom:32px;border:1px solid var(--border);background:var(--card);}
+.stat-box{flex:1;padding:18px;text-align:center;border-right:1px solid var(--border);}
+.stat-box:last-child{border-right:none;}
+.sbn{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--yellow);line-height:1;}
+.sbl{color:var(--txt3);font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;margin-top:3px;font-weight:600;}
+
+/* ====== NO RESULTS ====== */
+.no-res{text-align:center;padding:50px 20px;color:var(--txt2);}
+.no-res i{font-size:2.5rem;color:var(--txt3);display:block;margin-bottom:14px;}
+.no-res p{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+
+/* ====== RESPONSIVE ====== */
+@media(max-width:1024px){
+  .nav-links{display:none;}
+  .mob-menu{display:flex;}
+}
+@media(max-width:768px){
+  .hero{height:380px;}
+  .h-title{font-size:3.2rem;}
+  .hcontent{padding:0 24px 36px;}
+  .hero-side{display:none;}
+  .acard{width:140px;}
+  .acard-img{height:200px;}
+  .ah-title{font-size:2.8rem;}
+  .ah-poster{width:130px;}
+  .ah-cnt{padding-bottom:28px;gap:16px;}
+  .anime-hero{height:360px;}
+  .main-wrap{padding:20px 14px;}
+  .stats-row{flex-wrap:wrap;}
+  .stat-box{min-width:50%;}
+}
+@media(max-width:480px){
+  .hero{height:300px;}
+  .h-title{font-size:2.5rem;}
+  .h-desc{display:none;}
+  .acard{width:120px;}
+  .acard-img{height:172px;}
+  .ah-poster{display:none;}
+  .ah-title{font-size:2.2rem;}
+  .anime-hero{height:280px;}
+  .nav-search{display:none;}
+  .list-grid{grid-template-columns:1fr;}
+  .btn-donate .dtxt,.btn-req .rtxt{display:none;}
+}
+
+/* ====== MOB NAV DRAWER ====== */
+.mob-drawer{position:fixed;top:0;left:-260px;bottom:0;width:250px;background:#0d0d0d;border-right:1px solid var(--border);z-index:2000;transition:left .3s;padding:20px 0;}
+.mob-drawer.open{left:0;}
+.mob-drawer-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1999;display:none;}
+.mob-drawer-ov.show{display:block;}
+.mob-drawer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--yellow);letter-spacing:3px;padding:0 20px 16px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+.mob-nav-item{display:flex;align-items:center;gap:12px;padding:13px 20px;color:var(--txt2);font-size:.88rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:all .2s;}
+.mob-nav-item:hover,.mob-nav-item.active{color:var(--yellow);background:rgba(245,197,24,.06);}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader-logo">AniVerse</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<!-- ========== SIGNUP PAGE ========== -->
+<div class="page active" id="pageSignup">
+  <div class="auth-page">
+    <div class="auth-box">
+      <div class="auth-logo"><div class="al">AniVerse</div><div class="als">Anime Films &amp; Series</div></div>
+      <div class="auth-tabs">
+        <button class="atab" onclick="showPage('pageLogin')">Login</button>
+        <button class="atab active">Sign Up</button>
+      </div>
+      <div class="alert alert-err" id="suErr"></div>
+      <div class="alert alert-ok" id="suOk"></div>
+      <div class="fg"><label>Username</label><div class="iw"><i class="fas fa-user"></i><input type="text" id="su_user" placeholder="Choose a username"></div></div>
+      <div class="fg"><label>Email</label><div class="iw"><i class="fas fa-envelope"></i><input type="email" id="su_email" placeholder="Your email address"></div></div>
+      <div class="fg"><label>Phone Number</label><div class="iw"><i class="fas fa-phone"></i><input type="tel" id="su_phone" placeholder="+94XXXXXXXXX"></div></div>
+      <div class="fg"><label>Password</label><div class="iw"><i class="fas fa-lock"></i><input type="password" id="su_pass" placeholder="Create a password"></div></div>
+      <button class="btn-auth" onclick="handleSignup()">Create Account →</button>
+      <div class="auth-alt">Already have an account? <a onclick="showPage('pageLogin')">Login here</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== LOGIN PAGE ========== -->
+<div class="page" id="pageLogin">
+  <div class="auth-page">
+    <div class="auth-box">
+      <div class="auth-logo"><div class="al">AniVerse</div><div class="als">Anime Films &amp; Series</div></div>
+      <div class="auth-tabs">
+        <button class="atab active">Login</button>
+        <button class="atab" onclick="showPage('pageSignup')">Sign Up</button>
+      </div>
+      <div class="alert alert-err" id="liErr"></div>
+      <div class="fg"><label>Email</label><div class="iw"><i class="fas fa-envelope"></i><input type="email" id="li_email" placeholder="Your email address"></div></div>
+      <div class="fg"><label>Password</label><div class="iw"><i class="fas fa-lock"></i><input type="password" id="li_pass" placeholder="Your password" onkeydown="if(event.key==='Enter')handleLogin()"></div></div>
+      <button class="btn-auth" onclick="handleLogin()">Login →</button>
+      <div class="auth-alt">New here? <a onclick="showPage('pageSignup')">Create account</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== HOME PAGE ========== -->
+<div class="page" id="pageHome">
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <button class="mob-menu" onclick="openMobDrawer()"><i class="fas fa-bars"></i></button>
+      <div class="nav-logo" onclick="showPage('pageHome')">AniVerse</div>
+      <div class="nav-links">
+        <div class="nav-link active" onclick="filterCat('All',this)">Films</div>
+        <div class="nav-link" onclick="filterCat('Action',this)">Action</div>
+        <div class="nav-link" onclick="filterCat('Romance',this)">Romance</div>
+        <div class="nav-link" onclick="filterCat('Fantasy',this)">Fantasy</div>
+        <div class="nav-link" onclick="filterCat('Sci-Fi',this)">Sci-Fi</div>
+        <div class="nav-link" onclick="filterCat('Comedy',this)">Comedy</div>
+        <div class="nav-link" onclick="filterCat('Movie',this)">Movies</div>
+      </div>
+      <div class="nav-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInp" placeholder="Search anime..." oninput="handleSearch(this.value)" onfocus="this.value&&showSDrop()" onblur="setTimeout(hideSDrop,200)">
+        <div class="sdrop" id="sdrop"></div>
+      </div>
+      <div class="nav-actions">
+        <button class="btn-donate" onclick="openDonate()"><i class="fas fa-heart"></i><span class="dtxt"> Donate</span></button>
+        <button class="btn-req" onclick="openModal('reqModal')"><i class="fas fa-plus"></i><span class="rtxt"> Request</span></button>
+        <div class="nav-prof">
+          <div class="prof-ico" id="profIco" onclick="togglePM('pm1')">
+            <i class="fas fa-user" id="profIcon1"></i>
+            <div class="crown-badge" id="crownH"><i class="fas fa-crown"></i></div>
+          </div>
+          <div class="pmenu" id="pm1">
+            <div class="pm-head">
+              <div class="pm-name" id="pmN1">—</div>
+              <div class="pm-email" id="pmE1">—</div>
+              <div class="pm-role" id="pmR1">Member</div>
+            </div>
+            <div class="pmi" id="pmAdm1" style="display:none" onclick="goAdmin()"><i class="fas fa-crown"></i> Admin Panel</div>
+            <div class="pmi lo" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero" id="heroSection">
+    <div class="hero-slides" id="heroSlides"></div>
+    <button class="hnav-btn" style="left:16px" onclick="heroNav(-1)"><i class="fas fa-chevron-left"></i></button>
+    <button class="hnav-btn" style="right:16px" onclick="heroNav(1)"><i class="fas fa-chevron-right"></i></button>
+    <div class="hero-indicators" id="heroInds"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-wrap">
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- Category bar -->
+    <div class="cat-bar" id="catBar">
+      <button class="cfilt active" data-cat="All" onclick="filterCat('All',this)">All</button>
+      <button class="cfilt" data-cat="Action" onclick="filterCat('Action',this)">Action</button>
+      <button class="cfilt" data-cat="Romance" onclick="filterCat('Romance',this)">Romance</button>
+      <button class="cfilt" data-cat="Fantasy" onclick="filterCat('Fantasy',this)">Fantasy</button>
+      <button class="cfilt" data-cat="Sci-Fi" onclick="filterCat('Sci-Fi',this)">Sci-Fi</button>
+      <button class="cfilt" data-cat="Horror" onclick="filterCat('Horror',this)">Horror</button>
+      <button class="cfilt" data-cat="Comedy" onclick="filterCat('Comedy',this)">Comedy</button>
+      <button class="cfilt" data-cat="Movie" onclick="filterCat('Movie',this)">Movies</button>
+    </div>
+
+    <!-- Popular Films (horizontal scroll) -->
+    <div class="sec" id="secFilms">
+      <div class="sec-hdr">
+        <div class="sec-title">FILMS <span>TODAY</span></div>
+        <div class="sec-more" onclick="filterCat('All',null)">See all <i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="hscroll-wrap">
+        <button class="hscroll-btn prev" onclick="scrollSec('filmsScroll',-1)"><i class="fas fa-chevron-left"></i></button>
+        <div class="hscroll" id="filmsScroll"></div>
+        <button class="hscroll-btn next" onclick="scrollSec('filmsScroll',1)"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Popular Series (horizontal scroll) -->
+    <div class="sec" id="secSeries">
+      <div class="sec-hdr">
+        <div class="sec-title">POPULAR <span>SERIES</span></div>
+        <div class="sec-more" onclick="filterCat('Series',null)">See all <i class="fas fa-arrow-right"></i></div>
+      </div>
+      <div class="hscroll-wrap">
+        <button class="hscroll-btn prev" onclick="scrollSec('seriesScroll',-1)"><i class="fas fa-chevron-left"></i></button>
+        <div class="hscroll" id="seriesScroll"></div>
+        <button class="hscroll-btn next" onclick="scrollSec('seriesScroll',1)"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <!-- All / Filtered Grid (list style) -->
+    <div class="sec" id="secAll">
+      <div class="sec-hdr">
+        <div class="sec-title" id="allTitle">NEW <span>RELEASES</span></div>
+      </div>
+      <div class="list-grid" id="listGrid"></div>
+      <div class="no-res" id="noRes" style="display:none"><i class="fas fa-search"></i><p>No anime found</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ANIME DETAIL PAGE ========== -->
+<div class="page" id="pageAnime">
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="nav-logo" onclick="showPage('pageHome')">AniVerse</div>
+      <div style="flex:1"></div>
+      <div class="nav-actions">
+        <button class="btn-donate" onclick="openDonate()"><i class="fas fa-heart"></i></button>
+        <div class="nav-prof">
+          <div class="prof-ico" onclick="togglePM('pm2')"><i class="fas fa-user"></i></div>
+          <div class="pmenu" id="pm2">
+            <div class="pm-head"><div class="pm-name" id="pmN2">—</div><div class="pm-role" id="pmR2">Member</div></div>
+            <div class="pmi" id="pmAdm2" style="display:none" onclick="goAdmin()"><i class="fas fa-crown"></i> Admin Panel</div>
+            <div class="pmi lo" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="back-btn" onclick="showPage('pageHome')"><i class="fas fa-arrow-left"></i> Back to Home</div>
+  <div id="animeDetailContent"></div>
+</div>
+
+<!-- ========== PLAYER PAGE ========== -->
+<div class="page" id="pagePlayer">
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="nav-logo" onclick="showPage('pageHome')">AniVerse</div>
+      <div style="flex:1"></div>
+      <div class="nav-actions">
+        <button class="btn-donate" onclick="openDonate()"><i class="fas fa-heart"></i></button>
+        <div class="nav-prof">
+          <div class="prof-ico" onclick="togglePM('pm3')"><i class="fas fa-user"></i></div>
+          <div class="pmenu" id="pm3">
+            <div class="pm-head"><div class="pm-name" id="pmN3">—</div><div class="pm-role" id="pmR3">Member</div></div>
+            <div class="pmi lo" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="back-btn" id="playerBack"><i class="fas fa-arrow-left"></i> Back</div>
+  <div class="player-wrap"><div id="playerContent"></div></div>
+</div>
+
+<!-- ========== REQUEST MODAL ========== -->
+<div class="modal-bg" id="reqModal">
+  <div class="modal">
+    <div class="modal-title"><i class="fas fa-plus-circle"></i>Request Anime</div>
+    <div class="modal-sub">Can't find an anime? Submit a request!</div>
+    <div class="alert alert-ok" id="reqOk" style="margin-bottom:12px;"></div>
+    <div class="mfg"><label>Anime Name</label><input type="text" id="req_name" placeholder="e.g. Attack on Titan"></div>
+    <div class="mfg"><label>Extra Info (optional)</label><textarea id="req_info" placeholder="Season, year, or any notes..."></textarea></div>
+    <div class="mfoot">
+      <button class="btn-mcancel" onclick="closeModal('reqModal')">Cancel</button>
+      <button class="btn-msub" onclick="submitRequest()"><i class="fas fa-paper-plane"></i> Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Drawer -->
+<div class="mob-drawer-ov" id="mobOv" onclick="closeMobDrawer()"></div>
+<div class="mob-drawer" id="mobDrawer">
+  <div class="mob-drawer-logo">AniVerse</div>
+  <div class="mob-nav-item active" onclick="filterCat('All',null);closeMobDrawer()"><i class="fas fa-film" style="color:var(--yellow);width:18px"></i> All Anime</div>
+  <div class="mob-nav-item" onclick="filterCat('Action',null);closeMobDrawer()"><i class="fas fa-fist-raised" style="color:var(--yellow);width:18px"></i> Action</div>
+  <div class="mob-nav-item" onclick="filterCat('Romance',null);closeMobDrawer()"><i class="fas fa-heart" style="color:var(--yellow);width:18px"></i> Romance</div>
+  <div class="mob-nav-item" onclick="filterCat('Fantasy',null);closeMobDrawer()"><i class="fas fa-dragon" style="color:var(--yellow);width:18px"></i> Fantasy</div>
+  <div class="mob-nav-item" onclick="filterCat('Movie',null);closeMobDrawer()"><i class="fas fa-video" style="color:var(--yellow);width:18px"></i> Movies</div>
+  <div class="mob-nav-item" onclick="openModal('reqModal');closeMobDrawer()"><i class="fas fa-plus" style="color:var(--yellow);width:18px"></i> Request Anime</div>
+  <div class="mob-nav-item" onclick="openDonate()"><i class="fas fa-heart" style="color:var(--yellow);width:18px"></i> Donate</div>
+</div>
+
+<div id="toastCont" style="position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:flex-end;"></div>
+
+<script src="main.js"></script>
+</body>
+</html>
